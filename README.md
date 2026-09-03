@@ -2586,3 +2586,15 @@ https://uat.svkm.ac.in/headlamp/
 The Headlamp deployment is Helm-managed, uses in-cluster Kubernetes authentication, uses `/headlamp` as its base URL, and has working liveness/readiness probes at `/headlamp/`.
 
 The previous CrashLoopBackOff was caused by an incorrect health-probe path and was permanently resolved through the Helm-managed configuration.
+you have several approaches. They differ mainly in who decides to create the EC2 and how the new EC2 joins MicroK8s.
+
+Options
+Approach	How EC2 is created	How node joins MicroK8s	Complexity	My choice
+Cluster Autoscaler + ASG	Auto Scaling Group	cloud-init/user-data	Medium	⭐⭐⭐⭐
+Karpenter	Karpenter → EC2	bootstrap automation	High	⭐⭐⭐
+Custom controller/script	AWS CLI/API	custom join script	Medium/High	⭐⭐⭐
+Terraform automation	Terraform → EC2	cloud-init	Medium	⭐⭐
+AWS Lambda/EventBridge	Lambda → EC2	SSM/cloud-init	High	⭐⭐
+Manual scaling	You launch EC2	microk8s join	Low	⭐
+
+For MicroK8s on EC2, I would generally use the first approach.
